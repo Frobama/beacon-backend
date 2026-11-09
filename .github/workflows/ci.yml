@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ github.token }}
+
+      - name: Generar stubs de contratos
+        run: make proto
+
+      # Los pasos siguientes se activan solos cuando exista el proyecto NestJS (Fase 1).
+      - uses: actions/setup-node@v4
+        if: hashFiles('package.json') != ''
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        if: hashFiles('package.json') != ''
+        run: npm ci
+
+      - name: Lint
+        if: hashFiles('package.json') != ''
+        run: npm run lint --if-present
+
+      - name: Tests con cobertura
+        if: hashFiles('package.json') != ''
+        run: npm test --if-present -- --coverage
+
+      - name: Build
+        if: hashFiles('package.json') != ''
+        run: npm run build --if-present
+
+      - name: Build de imagen Docker
+        if: hashFiles('Dockerfile') != ''
+        run: docker build -t beacon-backend:ci .

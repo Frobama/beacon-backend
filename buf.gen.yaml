@@ -1,0 +1,10 @@
+version: v2
+clean: true
+plugins:
+  - remote: buf.build/community/stephenh-ts-proto
+    out: src/gen
+    include_imports: true
+    include_wkt: true
+    opt:
+      - nestJs=true
+      - esModuleInterop=true
