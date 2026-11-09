@@ -8,3 +8,6 @@ plugins:
     opt:
       - nestJs=true
       - esModuleInterop=true
+      - useDate=false
+      - outputEncodeMethods=false
+      - importSuffix=.js
