@@ -1,0 +1,12 @@
+import { connect, headers } from '@nats-io/transport-node';
+const nc = await connect({ servers: process.env.NATS_URL ?? 'nats://localhost:4222' });
+const serve = (subject, handler) => (async () => { for await (const msg of nc.subscribe(subject)) handler(msg); })();
+const ok = (msg, body) => msg.respond(JSON.stringify(body));
+const fail = (msg, code, message) => { const h = headers(); h.set('Beacon-Error-Code', code); h.set('Beacon-Error-Message', message); msg.respond('', { headers: h }); };
+serve('notifications.teams.list', m => ok(m, { teams: [{ id: 'platform', name: 'Plataforma', services: ['*'] }] }));
+serve('notifications.oncall.get', m => { const { teamId } = JSON.parse(m.string()); if (teamId !== 'platform') return fail(m, 'NOT_FOUND', `Team '${teamId}' not found`); ok(m, { users: [{ userId: 'ana', name: 'Ana Pérez', email: 'ana@example.com', level: 1 }, { userId: 'bruno', name: 'Bruno Soto', level: 2 }] }); });
+serve('notifications.policies.list', m => ok(m, { policies: [{ id: 'p1', teamId: 'platform', name: 'Default', levels: [{ level: 1, waitMinutes: 1 }, { level: 2, waitMinutes: 1, userIds: ['bruno'] }] }] }));
+serve('notifications.schedules.list', m => ok(m, { schedules: [{ id: 's1', teamId: 'platform', name: 'Guardia', shifts: [{ userId: 'ana', startsAt: '2026-11-01T00:00:00Z', endsAt: '2026-12-01T00:00:00Z' }] }] }));
+serve('notifications.schedule.create', m => { const r = JSON.parse(m.string()); ok(m, { schedule: { id: 'new1', teamId: r.teamId, name: r.name, shifts: r.shifts } }); });
+console.log('Fake notifications service ready');
+await new Promise(() => {});

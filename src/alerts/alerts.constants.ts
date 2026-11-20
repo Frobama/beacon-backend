@@ -1,0 +1,1 @@
+export const ALERTS_GRPC_CLIENT = 'ALERTS_GRPC_CLIENT';

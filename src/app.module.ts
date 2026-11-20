@@ -3,6 +3,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { IncidentsModule } from './incidents/incidents.module.js';
+import { NatsModule } from './nats/nats.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { IncidentsModule } from './incidents/incidents.module.js';
       sortSchema: true,
     }),
     IncidentsModule,
+    NatsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

@@ -14,7 +14,7 @@ interface GrpcError {
 }
 
 /** Traduce un error de gRPC a una excepción HTTP que GraphQL sabe mostrar. */
-export function toHttpException(error: unknown): Error {
+export function toHttpException(error: unknown, serviceName = 'Incidents'): Error {
   const grpcError = (error ?? {}) as GrpcError;
   const message = grpcError.details ?? grpcError.message ?? 'Unexpected error';
 
@@ -28,7 +28,7 @@ export function toHttpException(error: unknown): Error {
       return new ConflictException(message);
     case status.UNAVAILABLE:
     case status.DEADLINE_EXCEEDED:
-      return new ServiceUnavailableException('Incidents service unavailable');
+      return new ServiceUnavailableException(`${serviceName} service unavailable`);
     default:
       return new InternalServerErrorException('Unexpected error');
   }

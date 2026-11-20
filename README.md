@@ -21,7 +21,7 @@ make proto
 
 ## Entorno local
 
-NATS corre desde [`beacon-infra`](https://github.com/Frobama/beacon-infra) (`make up`): `nats://localhost:4222`.
+NATS corre desde [`beacon-infra`](https://github.com/Frobama/beacon-infra) (`make up`): `nats://localhost:4222`. Para simular Notificaciones ejecuta `node scripts/dev/fake-notifications.mjs`.
 
 ## Calidad
 
@@ -43,6 +43,8 @@ GraphQL: <http://localhost:3000/graphql> (Apollo Sandbox).
 |---|---|
 | `PORT` | `3000` |
 | `INCIDENTS_GRPC_URL` | `localhost:9090` |
+| `ALERTS_GRPC_URL` | `localhost:9091` |
+| `NATS_URL` | `nats://localhost:4222` |
 | `CORS_ORIGIN` | `http://localhost:3000,http://127.0.0.1:3000` (lista separada por comas) |
 
 ## API (Fase 1)
@@ -67,6 +69,19 @@ npm test
 npm run test:cov    # el código generado no cuenta en la cobertura
 ```
 
-## Estado
+## API (Fase 2)
 
-Fase 1: GraphQL de incidentes sobre gRPC. Pendiente: conexión con Notificaciones (NATS), subscriptions y MCP.
+GraphQL también expone `teams`, `onCall(teamId, at)`,
+`escalationPolicies(teamId)`, `schedules(teamId)` y `createSchedule(input)`.
+Cada incidente incluye `alerts` nullable; si Alertas no está disponible, el
+incidente sigue devolviéndose con un error parcial y `alerts: null`.
+
+Para desarrollo local:
+
+```bash
+make up
+node scripts/dev/fake-notifications.mjs
+npm run start:dev
+```
+
+La Fase 2 mantiene pendientes las subscriptions y el MCP.
