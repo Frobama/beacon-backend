@@ -6,9 +6,11 @@ import { BEACON_INCIDENTS_V1_PACKAGE_NAME } from '../gen/beacon/incidents/v1/inc
 import { INCIDENTS_GRPC_CLIENT } from './incidents.constants.js';
 import { IncidentsResolver } from './incidents.resolver.js';
 import { IncidentsService } from './incidents.service.js';
+import { AlertsModule } from '../alerts/alerts.module.js';
 
 @Module({
   imports: [
+    AlertsModule,
     ClientsModule.registerAsync([
       {
         name: INCIDENTS_GRPC_CLIENT,

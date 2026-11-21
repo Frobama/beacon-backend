@@ -4,12 +4,14 @@ import { DEFAULT_ACTOR } from './incidents.constants';
 import { IncidentStatus, Severity } from './models/enums';
 import { IncidentModel } from './models/incident.model';
 import { jest } from '@jest/globals';
+import { AlertsService } from '../alerts/alerts.service';
 
 describe('IncidentsResolver', () => {
   let service: jest.Mocked<
     Pick<IncidentsService, 'list' | 'get' | 'create' | 'updateStatus'>
   >;
   let resolver: IncidentsResolver;
+  let alerts: jest.Mocked<Pick<AlertsService, 'byIncident'>>;
   const incident = { id: 'abc' } as IncidentModel;
 
   beforeEach(() => {
@@ -19,7 +21,13 @@ describe('IncidentsResolver', () => {
       create: jest.fn().mockResolvedValue(incident),
       updateStatus: jest.fn().mockResolvedValue(incident),
     };
-    resolver = new IncidentsResolver(service as unknown as IncidentsService);
+    alerts = { byIncident: jest.fn().mockResolvedValue([]) };
+    resolver = new IncidentsResolver(service as unknown as IncidentsService, alerts as unknown as AlertsService);
+  });
+
+  it('resolves incident alerts', async () => {
+    await expect(resolver.alertsForIncident(incident)).resolves.toEqual([]);
+    expect(alerts.byIncident).toHaveBeenCalledWith('abc');
   });
 
   it('lists incidents passing the filters through', async () => {

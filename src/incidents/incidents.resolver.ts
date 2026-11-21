@@ -1,4 +1,6 @@
-import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { AlertModel } from '../alerts/models/alert.model.js';
+import { AlertsService } from '../alerts/alerts.service.js';
 import { DEFAULT_ACTOR } from './incidents.constants.js';
 import { IncidentsService } from './incidents.service.js';
 import { CreateIncidentInput } from './models/create-incident.input.js';
@@ -7,7 +9,12 @@ import { IncidentModel } from './models/incident.model.js';
 
 @Resolver(() => IncidentModel)
 export class IncidentsResolver {
-  constructor(private readonly service: IncidentsService) {}
+  constructor(private readonly service: IncidentsService, private readonly alerts: AlertsService) {}
+
+  @ResolveField(() => [AlertModel], { name: 'alerts', nullable: true })
+  alertsForIncident(incident: IncidentModel) {
+    return this.alerts.byIncident(incident.id);
+  }
 
   @Query(() => [IncidentModel], { name: 'incidents' })
   listIncidents(
